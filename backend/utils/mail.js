@@ -2,8 +2,9 @@
    and saved in server/outbox/ so the whole flow can be tried before the real mailbox is connected. */
 const nodemailer = require('nodemailer'), fs = require('fs'), path = require('path');
 const { MAIL_HOST, MAIL_PORT = 465, MAIL_USER, MAIL_PASS, MAIL_FROM } = process.env;
-const live = !!(MAIL_HOST && MAIL_USER && MAIL_PASS);
-const tx = live ? nodemailer.createTransport({ host: MAIL_HOST, port: Number(MAIL_PORT), secure: Number(MAIL_PORT) === 465, auth: { user: MAIL_USER, pass: MAIL_PASS } }) : null;
+const BREVO_KEY = process.env.BREVO_API_KEY;                                  // HTTPS e-mail API (works on hosts that block SMTP ports, e.g. Render free plan)
+const smtp = !!(MAIL_HOST && MAIL_USER && MAIL_PASS), live = !!BREVO_KEY || smtp;
+const tx = smtp && !BREVO_KEY ? nodemailer.createTransport({ host: MAIL_HOST, port: Number(MAIL_PORT), secure: Number(MAIL_PORT) === 465, auth: { user: MAIL_USER, pass: MAIL_PASS } }) : null;
 const OUT = path.join(__dirname, '..', 'outbox'); if (!live) fs.mkdirSync(OUT, { recursive: true });
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -18,7 +19,15 @@ async function send(to, subject, html, text, attempt = 1) {
   if (!to) return { skipped: true };
   const msg = { from: MAIL_FROM || MAIL_USER || 'Saarthi <no-reply@saarthi.local>', to, subject, html, text };
   if (!live) { const f = path.join(OUT, `${Date.now()}-${to.replace(/[^\w.@-]/g, '_')}.html`); fs.writeFileSync(f, `<!-- To: ${to}\nSubject: ${subject} -->\n${html}`); console.log(`[mail:test] to ${to} — ${subject}`); return { test: true }; }
-  try { await tx.sendMail(msg); return { sent: true }; }
+  try {
+    if (BREVO_KEY) {                                                              // Brevo transactional e-mail API over HTTPS (port 443)
+      const m = String(msg.from).match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/), sender = m ? { name: m[1].trim() || 'Saarthi', email: m[2] } : { name: 'Saarthi', email: String(msg.from) };
+      const r = await fetch('https://api.brevo.com/v3/smtp/email', { method: 'POST', headers: { 'api-key': BREVO_KEY, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ sender, to: [{ email: to }], subject, htmlContent: html, textContent: text }) });
+      if (!r.ok) throw new Error('Brevo ' + r.status + ' ' + (await r.text()).slice(0, 200));
+      return { sent: true };
+    }
+    await tx.sendMail(msg); return { sent: true };
+  }
   catch (e) { if (attempt < 3) { await new Promise(r => setTimeout(r, 2000 * attempt)); return send(to, subject, html, text, attempt + 1); } console.error('[mail] failed for', to, e.message); return { failed: true }; }
 }
 const fire = (...a) => { send(...a).catch(e => console.error('[mail]', e.message)); };       // never blocks a request
