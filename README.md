@@ -41,3 +41,18 @@ District admin `district@123`, DC `dc@123`, EO `eo@123`, Mayor `mayor@123`, MLA 
 
 ## Known limits (honest notes)
 - SMS is not implemented. Render's free disk is wiped on deploy (uploaded files are lost) and the free service sleeps when idle (escalation pauses). Aadhaar check is checksum + duplicate protection only — it does not prove the number is genuine. Business rules for grievance workflow live partly in the browser code that the server re-uses for escalation.
+
+
+## Team
+
+| Contributor | GitHub Profile | Role |
+| :--- | :--- | :--- |
+| **Parv Sood** | [@parvvsood](https://github.com/parvvsood) | Lead Frontend & UI/UX Developer |
+| **Pranjal Thakur** | [@pranjal070](https://github.com/pranjal070) | Repository Maintainer & Core Developer |
+| **Shehjeet Singh** | [@ShehjeetSingh](https://github.com/ShehjeetSingh) | Backend Developer (Node.js, Express, MongoDB, deployment) |
+
+[![parvvsood](https://img.shields.io/badge/Parv%20Sood-parvvsood-orange?style=for-the-badge&logo=github)](https://github.com/parvvsood)
+[![pranjal070](https://img.shields.io/badge/Pranjal%20Thakur-pranjal070-black?style=for-the-badge&logo=github)](https://github.com/pranjal070)
+[![ShehjeetSingh](https://img.shields.io/badge/Shehjeet%20Singh-ShehjeetSingh-blue?style=for-the-badge&logo=github)](https://github.com/ShehjeetSingh)
+
+Built for the citizens of Punjab. Saarthi Civic Tech Platform.  
