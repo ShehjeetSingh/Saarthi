@@ -5,7 +5,7 @@
 <title>Administration · Saarthi</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/icons.css">
-<link rel="stylesheet" href="css/console.css">
+<link rel="stylesheet" href="css/compat.css">
 </head>
 <body>
 <script>
@@ -14,7 +14,7 @@
 // person appear to still be inside the dashboard. Force a fresh session check
 // whenever the page is restored from that cache.
 window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
-document.documentElement.dataset.theme=localStorage.getItem("saarthi_theme_v3")||"dark";</script>
+document.documentElement.dataset.theme=localStorage.getItem("saarthi_theme_v3")||"light";</script>
 <div class="phulkari"></div>
 <div class="dash">
   <aside class="side">
@@ -343,6 +343,10 @@ document.documentElement.dataset.theme=localStorage.getItem("saarthi_theme_v3")|
                   <div class="field"><label>Contact number <span class="req">*</span></label><input id="ndOffPhone" maxlength="10" required></div>
                   <div class="field"><label>Head officer's district</label><select id="ndDist"></select></div>
                   <div class="field full"><label>Office address</label><input id="ndOffice" placeholder="e.g. Parks Office, Model Town, Rajpura"></div>
+                  <div class="field full"><label>Department photo (shown on the home page card)</label>
+                    <input id="ndPhoto" type="file" accept="image/jpeg,image/png,image/webp">
+                    <div class="hint">A landscape JPG / PNG / WEBP works best. It is resized automatically (800×400) and saved with the department. Optional — without it the card shows a banner with the department's icon.</div>
+                    <img id="ndPhotoPrev" alt="" style="display:none;margin-top:.5rem;max-width:260px;width:100%;border-radius:10px;border:1px solid var(--line)"></div>
                   <div class="field full"><label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="ndEmergency" style="width:auto"> Emergency service — 24-hour resolution SLA (instead of standard 36 hours)</label></div>
                 </div>
                 <button class="btn btn-pine" type="submit">Create department</button>

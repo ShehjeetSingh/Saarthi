@@ -71,7 +71,7 @@ if (me && AUTH_ROLES.includes(me.role)) {
 
   const themeBtn = document.getElementById('themeBtn');
   const applyTheme = t => { document.documentElement.dataset.theme=t; themeBtn.innerHTML = t === 'dark' ? '<i class="mi mi-sun"></i>' : '<i class="mi mi-moon"></i>'; localStorage.setItem('saarthi_theme_v3',t); };
-  applyTheme(localStorage.getItem('saarthi_theme_v3')||'dark');
+  applyTheme(localStorage.getItem('saarthi_theme_v3')||'light');
   themeBtn.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
   const toggle=(btn,pop)=>btn.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.pop').forEach(p=>p!==pop&&p.classList.remove('open'));pop.classList.toggle('open');});
   toggle(document.getElementById('bellBtn'),document.getElementById('bellPop'));
@@ -846,13 +846,19 @@ if (me && AUTH_ROLES.includes(me.role)) {
         <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;flex-wrap:wrap">
           <b style="font-size:.95rem">${d.ico} ${esc(d.name)}</b>
           ${d.emergency ? '<span class="badge b-esc">24h emergency SLA</span>' : `<span class="badge b-sub">${d.slaHours||36}h SLA</span>`}
+          ${d.custom && me.role === 'admin' ? `<label class="btn btn-outline btn-sm" style="margin-left:auto;cursor:pointer">🖼️ ${d.photo ? 'Change' : 'Add'} photo<input type="file" accept="image/jpeg,image/png,image/webp" data-deptphoto="${esc(d.id)}" hidden></label>${d.photo ? `<img src="${d.photo}" alt="" style="height:34px;border-radius:6px;border:1px solid var(--line)">` : ''}` : ''}
         </div>
         <div class="pipe-mini">${officers.length ? officers.map(o => `<span>Rank ${o.rank||1}: ${esc(o.name)} (${esc(o.designation)})</span>`).join('') : '<span>No officer posted in this district yet</span>'}</div>
       </div>`;
     }).join('');
   }
 
-  document.getElementById('newDeptForm').addEventListener('submit', e => {
+  document.getElementById('ndPhoto').addEventListener('change', async e => {
+    const prev = document.getElementById('ndPhotoPrev'); prev.style.display = 'none';
+    try { const p = await resizeDeptPhoto(e.target.files[0]); if (p) { prev.src = p; prev.style.display = 'block'; } }
+    catch (err) { e.target.value = ''; toast(err.message, 'bad'); }
+  });
+  document.getElementById('newDeptForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (me.role !== 'admin') return;
     const name = document.getElementById('ndName').value.trim();
@@ -867,9 +873,10 @@ if (me && AUTH_ROLES.includes(me.role)) {
     if (officerName.length < 3) return toast("Enter the head officer's name.", 'bad');
     if (!/^[6-9]\d{9}$/.test(officerPhone)) return toast('Enter a valid 10-digit contact number.', 'bad');
     const district = ndDist.value;
-    const { dept, officer } = addDepartment({ name, ico, designation, emergency, officerName, officerPhone, office, district, by: me });
+    let photo = ''; try { photo = await resizeDeptPhoto(document.getElementById('ndPhoto').files[0]); } catch (err) { return toast(err.message, 'bad'); }
+    const { dept, officer } = addDepartment({ name, ico, designation, emergency, officerName, officerPhone, office, district, photo, by: me });
     toast(`Department "${dept.name}" created in ${districtName(district)} — ${officerName}, roll ID ${officer.empId}. Other districts can add their own officers. Password: officer@123`);
-    e.target.reset(); ndDist.value = district;
+    e.target.reset(); ndDist.value = district; document.getElementById('ndPhotoPrev').style.display = 'none';
     renderAll();
   });
 
@@ -1380,3 +1387,10 @@ if (me && AUTH_ROLES.includes(me.role)) {
   window.__renderAuthority = renderAll;
   renderAll();
 }
+
+document.addEventListener('change', async e => {
+  const inp = e.target.closest && e.target.closest('input[data-deptphoto]'); if (!inp) return;
+  try { const p = await resizeDeptPhoto(inp.files[0]); const r = setDepartmentPhoto(inp.dataset.deptphoto, p, Session.current());
+    toast(r.ok ? 'Department photo updated — it now shows on the home page.' : r.msg, r.ok ? 'ok' : 'bad'); if (r.ok && window.__afterEmployeeChange) window.__afterEmployeeChange(); }
+  catch (err) { toast(err.message, 'bad'); }
+});

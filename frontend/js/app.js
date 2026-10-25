@@ -274,3 +274,38 @@ function setInvalid(input, message){
 function clearInvalid(form){
   form.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
 }
+
+// ---------- Responsive tables ----------
+// Every <table class="tbl"> that any dashboard renders is (a) wrapped in a scroll container so it scrolls
+// sideways on its own on tablets, and (b) given data-label attributes so that on phones each row can be shown
+// as a stacked card — complaint, status and every other column visible without scrolling at all.
+(function(){
+  if (typeof document === 'undefined') return;
+  const label = tb => {
+    const heads = Array.from(tb.querySelectorAll('thead th')).map(th => th.textContent.trim());
+    if (!heads.length) return;
+    tb.querySelectorAll('tbody tr').forEach(tr => {
+      if (tr.children.length === 1) { tr.classList.add('tbl-one'); return; }
+      Array.from(tr.children).forEach((td, i) => { if (td.tagName === 'TD' && !td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i] || ''); });
+    });
+  };
+  const wrap = tb => {
+    if (!tb.parentElement.classList.contains('tbl-scroll')) {
+      const box = document.createElement('div'); box.className = 'tbl-scroll';
+      tb.parentNode.insertBefore(box, tb); box.appendChild(tb);
+      const hint = document.createElement('div'); hint.className = 'tbl-hint'; hint.textContent = '\u2194 Swipe sideways to see every column';
+      box.parentNode.insertBefore(hint, box);
+    }
+    label(tb);
+  };
+  let queued = new Set(), pending = false;
+  const flush = () => { pending = false; queued.forEach(tb => { if (tb.isConnected) wrap(tb); }); queued.clear(); };
+  const queue = tb => { queued.add(tb); if (!pending) { pending = true; Promise.resolve().then(flush); } };
+  const scan = root => (root.querySelectorAll ? root.querySelectorAll('table.tbl') : []).forEach(queue);
+  const start = () => { scan(document);
+    new MutationObserver(ms => ms.forEach(m => {
+      const host = m.target.closest ? m.target.closest('table.tbl') : null; if (host) queue(host);
+      m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches && n.matches('table.tbl')) queue(n); else scan(n); } });
+    })).observe(document.body, { childList:true, subtree:true }); };
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();

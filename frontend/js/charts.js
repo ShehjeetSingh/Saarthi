@@ -4,7 +4,7 @@
    Syllabus: functions, arrays, map/reduce, template literals (T7–16)
    ============================================================ */
 
-const PALETTE = ['#ff6a1a','#ffb020','#2ecc8f','#7fb0ff','#b995ff','#ff5a5f','#22c1c3','#ff9a5c','#8a93a8','#e879a9','#9be15d','#5b8def'];
+const PALETTE = ['#1250A4','#1D6FD8','#4A90E2','#7CB8F2','#0D2B52','#2E7D5B','#B45309','#8E44AD','#C0392B','#0E7490','#6D28D9','#475569'];
 
 /* ---- Donut chart ---- */
 function donut(data, size = 190){                 // data: [{label, value}]
@@ -62,7 +62,7 @@ function progressRows(rows){                      // rows: [{label, done, total}
 function gauge(pct){
   const R = 62, C = Math.PI * R;                  // half circumference
   const len = (Math.min(Math.max(pct, 0), 100) / 100) * C;
-  const color = pct >= 75 ? '#2ecc8f' : pct >= 40 ? '#ff8a1f' : '#ff5a5f';
+  const color = pct >= 75 ? '#1E7F4F' : pct >= 40 ? '#B45309' : '#C0392B';
   return `<svg viewBox="0 0 160 92" width="180" height="104" class="gauge">
     <path d="M18,80 A62,62 0 0 1 142,80" fill="none" stroke="currentColor" stroke-opacity=".14" stroke-width="14" stroke-linecap="round"/>
     <path d="M18,80 A62,62 0 0 1 142,80" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"

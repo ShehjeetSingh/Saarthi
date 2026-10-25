@@ -5,19 +5,34 @@
 <title>Saarthi · Civic Grievance Portal · Govt. of Punjab</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/icons.css">
-<link rel="stylesheet" href="css/console.css">
+<link rel="stylesheet" href="css/compat.css">
 </head>
 <body>
-<script>document.documentElement.dataset.theme=localStorage.getItem("saarthi_theme_v3")||"dark";</script>
+<script>document.documentElement.dataset.theme=localStorage.getItem("saarthi_theme_v3")||"light";</script>
 
-<div id="gov"></div>
 
 <header class="site-head">
   <div class="wrap">
-    <div class="emblem">ਸ</div>
-    <div class="brand"><h1>Saarthi</h1><p data-i18n="tagline">Civic Grievance Portal · Govt. of Punjab</p></div>
+    <a class="logo-area" href="index.html" aria-label="Saarthi home">
+      <div class="brand-logo">
+        <div class="logo-txt">
+          <span class="l-or">SAA</span><span class="l-bl">R</span><span class="l-or">T</span><span class="l-gr">HII</span>
+        </div>
+        <div class="logo-lines"><span class="line-or"></span><span class="dot-bl"></span><span class="line-gr"></span></div>
+        <span class="logo-sub" data-i18n="logoSub">One Nation — One Portal</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-item active" data-i18n="navHome">Home</a>
+      <a href="index.html#departments" class="nav-item" data-i18n="navDepts">Departments</a>
+      <a href="index.html#grievance-map" class="nav-item" data-i18n="navMap">Grievance Track</a>
+      <a href="directory.html" class="nav-item" data-i18n="navDirectory">Department directory</a>
+      <a href="index.html#how-it-works" class="nav-item" data-i18n="navHow">How it works</a>
+    </nav>
+
     <div class="head-actions">
-      <div class="langsw">
+      <div class="wrap-rel langsw">
         <button id="langBtn"><i class="mi mi-globe"></i> <span id="langCur">EN</span></button>
         <div class="lang-menu" id="langMenu">
           <button class="lang-opt" data-lang="en">🇬🇧 English</button>
@@ -26,8 +41,8 @@
         </div>
       </div>
       <button class="iconbtn" id="themeBtn" title="Toggle theme"><i class="mi mi-moon"></i></button>
-      <a class="btn btn-ghost" href="login.html" data-i18n="signin">Sign in</a>
-      <a class="btn btn-gold" href="signup.html" data-i18n="register">Register</a>
+      <a class="btn btn-ghost" href="login.html" data-i18n="signin">Log In</a>
+      <a class="btn btn-gold" href="signup.html" data-i18n="register">Sign Up</a>
     </div>
   </div>
 </header>
@@ -43,7 +58,7 @@
   <span data-i18n="tick4">🤝 Write directly to your Municipal Councillor from your dashboard</span>
 </div></div></div>
 
-<section class="hero hero-compact">
+<section class="hero hero-compact" id="grievance-map">
   <div class="wrap">
     <div class="hero-copy">
       <span class="hero-eyebrow" data-i18n="heroEyebrow">Service · Transparency · Accountability</span>
@@ -59,14 +74,19 @@
         <div><b>36h</b><span data-i18n="kpiSla">SLA</span></div>
         <div><b id="cT">0</b><span data-i18n="statsFiled">filed</span></div>
       </div>
-      <div class="tracker-card glass tracker-left">
-        <h3 data-i18n="trackTitle">Track a grievance</h3>
-        <form id="trackForm" style="display:flex;flex-direction:column;gap:.5rem">
-          <input id="trackNo" maxlength="10" placeholder="26XX000000" inputmode="numeric" style="margin-bottom:.5rem">
-          <input id="trackPhone" maxlength="10" inputmode="numeric" placeholder="Registered mobile number" style="margin-bottom:.5rem">
-          <button class="btn btn-gold" type="submit" data-i18n="track">Track</button>
+      <div class="tracker-card tracker-left">
+        <div class="tracker-header">
+          <h3>🔍 <span data-i18n="trackTitle">Track your grievance</span></h3>
+        </div>
+        <p class="tracker-desc" data-i18n="trackSub">Enter your 10-digit application number</p>
+        <form id="trackForm" class="tracker-inputs-wrapper">
+          <div class="tracker-row">
+            <input id="trackNo" maxlength="10" placeholder="26XX000000" inputmode="numeric" required>
+            <input id="trackPhone" maxlength="10" inputmode="numeric" placeholder="Registered mobile no." required>
+          </div>
+          <button type="submit" class="tracker-submit" data-i18n="track">Track</button>
         </form>
-        <p style="font-size:.72rem;color:var(--muted);margin-top:.4rem">For your privacy, enter the complainant's registered mobile number to verify identity before details are shown.</p>
+        <p class="tracker-privacy">For your privacy, we verify the complainant's registered mobile number before showing any details.</p>
         <div id="trackResult"></div>
       </div>
     </div>
@@ -76,6 +96,7 @@
         <div class="map-chip chip-1"><span class="dot"></span> <span data-i18n="chipLive">Live in all 23 districts</span></div>
         <img src="assets/punjab-districts.png" alt="District map of Punjab">
         <div class="map-chip chip-2">📍 <span data-i18n="chipRajpura">124 corporations &amp; councils · 2,600+ wards</span></div>
+        <div class="map-sub">State of Punjab · 23 Districts</div>
       </div>
     </div>
   </div>
@@ -87,21 +108,23 @@
   <span data-i18n="trustFree">🆓 Free for every citizen, always</span>
 </div>
 
-<section class="section compact">
+<section class="section compact" id="departments">
   <div class="wrap">
     <p class="eyebrow" data-i18n="whoHandles2">One portal, every department</p>
-    <div class="dept-strip" id="deptGrid"></div>
+    <h2 class="title">Who handles your grievance</h2>
+    <div class="dept-grid" id="deptGrid"></div>
   </div>
 </section>
 
-<section class="section compact" style="background:var(--card);border-block:1px solid var(--line)">
+<section class="section compact" id="how-it-works" style="background:var(--card);border-block:1px solid var(--line)">
   <div class="wrap">
     <p class="eyebrow" data-i18n="promise">The Saarthi promise</p>
+    <h2 class="title" style="margin-bottom: 2rem;">How your file moves</h2>
     <div class="grid-4">
-      <div class="card step-card reveal"><b data-i18n="step1t">1 · File it</b><p data-i18n="step1d">Describe the issue, pin it on the map, attach a photo, and submit for an instant application number.</p></div>
-      <div class="card step-card reveal"><b data-i18n="step2t">2 · It reaches the desk</b><p data-i18n="step2d">Lands directly on the designated officer's dashboard — DSP, Xen, EO — of the concerned department.</p></div>
-      <div class="card step-card reveal"><b data-i18n="step3t">3 · Officer acts</b><p data-i18n="step3d">The officer reviews, assigns a field officer with contact details, and records every remark on file.</p></div>
-      <div class="card step-card reveal"><b data-i18n="step4t">4 · Resolved in 36h</b><p data-i18n="step4d">Or the file auto-escalates to the higher official. You rate the work, or reopen it.</p></div>
+      <div class="card step-card reveal"><div class="step-num">1</div><h4 data-i18n="step1t">File it</h4><p data-i18n="step1d">Describe the issue, pin it on the map, attach a photo, and submit for an instant application number.</p></div>
+      <div class="card step-card reveal"><div class="step-num">2</div><h4 data-i18n="step2t">It reaches the desk</h4><p data-i18n="step2d">Lands directly on the designated officer's dashboard — DSP, Xen, EO — of the concerned department.</p></div>
+      <div class="card step-card reveal"><div class="step-num">3</div><h4 data-i18n="step3t">Officer acts</h4><p data-i18n="step3d">The officer reviews, assigns a field officer with contact details, and records every remark on file.</p></div>
+      <div class="card step-card reveal"><div class="step-num">4</div><h4 data-i18n="step4t">Resolved in 36h</h4><p data-i18n="step4d">Or the file auto-escalates to the higher official. You rate the work, or reopen it.</p></div>
     </div>
   </div>
 </section>
@@ -154,12 +177,92 @@
 <script>if (maintenanceGate()) { throw new Error("maintenance"); }</script>
 <script src="js/i18n.js"></script>
 <script>
-document.getElementById('gov').innerHTML = govStrip();
-initI18nSwitcher();
+let typingTimeoutId = null;
+function runHeroTypingAnimation() {
+  if (typingTimeoutId) clearTimeout(typingTimeoutId);
+  
+  const el1 = document.querySelector('[data-i18n="heroTitle1"]');
+  const elEm = document.querySelector('[data-i18n="heroTitleEm"]');
+  const el2 = document.querySelector('[data-i18n="heroTitle2"]');
+  if (!el1 || !elEm || !el2) return;
+
+  const text1 = t('heroTitle1');
+  const textEm = t('heroTitleEm');
+  const text2 = t('heroTitle2');
+
+  el1.textContent = '';
+  elEm.textContent = '';
+  el2.textContent = '';
+
+  let segment = 1;
+  let idx = 0;
+
+  function type() {
+    if (segment === 1) {
+      el1.classList.add('typing-active');
+      elEm.classList.remove('typing-active');
+      el2.classList.remove('typing-active');
+      if (idx < text1.length) {
+        el1.textContent += text1.charAt(idx);
+        idx++;
+        typingTimeoutId = setTimeout(type, 35);
+      } else {
+        segment = 2;
+        idx = 0;
+        typingTimeoutId = setTimeout(type, 60);
+      }
+    } else if (segment === 2) {
+      el1.classList.remove('typing-active');
+      elEm.classList.add('typing-active');
+      el2.classList.remove('typing-active');
+      if (idx < textEm.length) {
+        elEm.textContent += textEm.charAt(idx);
+        idx++;
+        typingTimeoutId = setTimeout(type, 35);
+      } else {
+        segment = 3;
+        idx = 0;
+        typingTimeoutId = setTimeout(type, 60);
+      }
+    } else if (segment === 3) {
+      el1.classList.remove('typing-active');
+      elEm.classList.remove('typing-active');
+      el2.classList.add('typing-active');
+      if (idx < text2.length) {
+        el2.textContent += text2.charAt(idx);
+        idx++;
+        typingTimeoutId = setTimeout(type, 35);
+      } else {
+        el2.classList.remove('typing-active');
+        typingTimeoutId = setTimeout(erase, 5000);
+      }
+    }
+  }
+
+  function erase() {
+    if (el2.textContent.length > 0) {
+      el2.textContent = el2.textContent.slice(0, -1);
+      typingTimeoutId = setTimeout(erase, 12);
+    } else if (elEm.textContent.length > 0) {
+      elEm.textContent = elEm.textContent.slice(0, -1);
+      typingTimeoutId = setTimeout(erase, 12);
+    } else if (el1.textContent.length > 0) {
+      el1.textContent = el1.textContent.slice(0, -1);
+      typingTimeoutId = setTimeout(erase, 12);
+    } else {
+      typingTimeoutId = setTimeout(runHeroTypingAnimation, 500);
+    }
+  }
+
+  type();
+}
+
+initI18nSwitcher(runHeroTypingAnimation);
+runHeroTypingAnimation();
 // Theme toggle (persists across every page via localStorage)
 const themeBtn = document.getElementById('themeBtn');
 const applyTheme = t => { document.documentElement.dataset.theme = t; themeBtn.innerHTML = t === 'dark' ? '<i class="mi mi-sun"></i>' : '<i class="mi mi-moon"></i>'; localStorage.setItem('saarthi_theme_v3', t); };
-applyTheme(localStorage.getItem('saarthi_theme_v3') || 'dark');
+applyTheme(localStorage.getItem('saarthi_theme_v3') || 'light');
 themeBtn.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 
 document.getElementById('langBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('langMenu').classList.toggle('open'); });
@@ -174,8 +277,27 @@ countUp(document.getElementById('cT'), all.length);
 countUp(document.getElementById('cD'), allDepartments().length);
 countUp(document.getElementById('cW'), allUlbs().reduce((a, u) => a + (u.wards || 0), 0));
 
-document.getElementById('deptGrid').innerHTML = allDepartments().map(d => `
-  <div class="dchip"><span class="ico">${d.ico}</span><span>${d.name}</span></div>`).join('');
+const deptImages = {
+  // Every department now uses its own file in assets/dept/<id>.jpg. Only these still point at an online photo:
+  'municipal': 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=400&auto=format&fit=crop&q=80'
+};
+
+document.getElementById('deptGrid').innerHTML = allDepartments().map(d => {
+  // Photo if we have one, otherwise the department's own illustrated banner (assets/dept/<id>.svg).
+  // Order: built-in photo -> your own assets/dept/<id>.jpg (just drop the file in) -> illustrated banner -> default.
+  const img = d.photo || deptImages[d.id] || `assets/dept/${d.id}.jpg`;
+  return `
+    <div class="dept-card-new">
+      <div class="img-container">
+        <img src="${img}" alt="${d.name}" loading="lazy" onerror="if(!this.dataset.s){this.dataset.s=1;this.src='assets/dept/${d.id}.svg'}else{this.onerror=null;this.src='assets/dept/_default.svg'}">
+        <div class="icon-badge">${d.ico}</div>
+      </div>
+      <div class="content">
+        <h3>${d.name}</h3>
+        <p>${d.designation} · responds in ${d.slaHours}h</p>
+      </div>
+    </div>`;
+}).join('');
 
 const ro = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); ro.unobserve(en.target); } }), { threshold:.2 });
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));

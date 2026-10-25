@@ -5,7 +5,7 @@
 <title>Citizen dashboard · Saarthi</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/icons.css">
-<link rel="stylesheet" href="css/console.css">
+<link rel="stylesheet" href="css/compat.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
@@ -293,9 +293,9 @@ const w = wardByNo(me.ward, me.ulb);
 function verifyBanner(){
   const u = DB.get('users').find(x => x.id === me.id) || {}; let b = document.getElementById('verifyBar');
   if (u.emailVerified) { if (b) b.remove(); return; }
-  if (!b) { b = document.createElement('div'); b.id = 'verifyBar'; b.style.cssText = 'background:#7c2d12;color:#fff;padding:.6rem 1rem;font-size:.85rem;text-align:center;position:sticky;top:0;z-index:50'; document.body.prepend(b); }
-  b.innerHTML = u.email ? `Please verify your email <b>${u.email}</b> to file grievances. <a href="#" id="vbResend" style="color:#fdba74;font-weight:700;margin-left:.5rem">Resend verification email</a>`
-    : `Add your email to receive updates and file grievances: <input id="vbEmail" type="email" placeholder="you@gmail.com" style="padding:.25rem .5rem;border-radius:6px;border:0;margin:0 .4rem"> <a href="#" id="vbResend" style="color:#fdba74;font-weight:700">Send verification link</a>`;
+  if (!b) { b = document.createElement('div'); b.id = 'verifyBar'; b.style.cssText = 'background:var(--warn-bg);color:var(--warn);border-bottom:1px solid var(--line);padding:.6rem 1rem;font-size:.85rem;text-align:center;position:relative;z-index:50'; document.body.prepend(b); }
+  b.innerHTML = u.email ? `Please verify your email <b>${u.email}</b> to file grievances. <a href="#" id="vbResend" style="color:var(--primary);font-weight:700;margin-left:.5rem">Resend verification email</a>`
+    : `Add your email to receive updates and file grievances: <input id="vbEmail" type="email" placeholder="you@gmail.com" style="padding:.25rem .5rem;border-radius:6px;border:0;margin:0 .4rem"> <a href="#" id="vbResend" style="color:var(--primary);font-weight:700">Send verification link</a>`;
   document.getElementById('vbResend').onclick = e => { e.preventDefault(); const em = (document.getElementById('vbEmail') || {}).value; API.resendVerify(em || undefined).then(r => toast(r.ok ? 'Verification email sent — check your inbox.' : r.error, r.ok ? 'ok' : 'bad')); };
 }
 verifyBanner(); document.addEventListener('saarthi:sync', verifyBanner);
@@ -323,7 +323,7 @@ const applyTheme = t => {
   themeBtn.innerHTML = t === 'dark' ? '<i class="mi mi-sun"></i>' : '<i class="mi mi-moon"></i>';
   localStorage.setItem('saarthi_theme_v3', t);
 };
-applyTheme(localStorage.getItem('saarthi_theme_v3') || 'dark');
+applyTheme(localStorage.getItem('saarthi_theme_v3') || 'light');
 themeBtn.addEventListener('click', () =>
   applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 

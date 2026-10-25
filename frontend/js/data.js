@@ -192,11 +192,12 @@ const officerByDept = (deptId, district) => {
 };
 
 // ---------- Admin actions: create departments & build hierarchy ----------
-function addDepartment({ name, ico, designation, emergency, officerName, officerPhone, office, district, by }){
+function addDepartment({ name, ico, designation, emergency, officerName, officerPhone, office, district, photo, by }){
   if (_viewOnly(by)) return { ok:false, msg:'MLAs and MPs have view-only access — they cannot create or change posts, officers, districts or any other record.' };
   const code = DB.nextDeptCode();
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'dept' + code;
-  const dept = { code, id, name, ico: ico || '🏢', designation, higher: 'District Grievance Officer', slaHours: emergency ? 24 : 36, emergency: !!emergency, office };
+  const dept = { code, id, name, ico: ico || '🏢', designation, higher: 'District Grievance Officer', slaHours: emergency ? 24 : 36, emergency: !!emergency, office, custom: true };
+  if (photo) dept.photo = photo;   // resized JPEG data-URL, stored with the department so it survives redeploys
   const customs = DB.get('customDepartments'); customs.push(dept); DB.set('customDepartments', customs);
   const officer = createEmployee({ name: officerName, phone: officerPhone, dept: id, district: district || DEFAULT_DISTRICT, designation, rank: 1, office, by });
   return { dept, officer };
@@ -936,3 +937,34 @@ function _ensureAuthorities(){
   }
   if (stored < SCHEMA_VERSION) DB.setVal('schema', SCHEMA_VERSION);
 })();
+
+
+// ---------- Department photos (shown on the home page cards) ----------
+// Reads an image file, crops it to 2:1, resizes to 800x400 and returns a compact JPEG data-URL (~40-120 KB).
+function resizeDeptPhoto(file){
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve('');
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return reject(new Error('Choose a JPG, PNG or WEBP image.'));
+    if (file.size > 8 * 1024 * 1024) return reject(new Error('That image is over 8 MB — choose a smaller one.'));
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const W = 800, H = 400, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+      const r = Math.max(W / img.width, H / img.height), w = img.width * r, h = img.height * r;
+      g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      URL.revokeObjectURL(url);
+      let q = .82, out = c.toDataURL('image/jpeg', q);
+      while (out.length > 160000 && q > .4) { q -= .08; out = c.toDataURL('image/jpeg', q); }
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file could not be read as an image.')); };
+    img.src = url;
+  });
+}
+function setDepartmentPhoto(deptId, photo, by){
+  if (_viewOnly(by)) return { ok:false, msg:'View-only accounts cannot change departments.' };
+  const customs = DB.get('customDepartments'), d = customs.find(x => x.id === deptId);
+  if (!d) return { ok:false, msg:'Only departments created in Saarthi can have their photo changed here.' };
+  if (photo) d.photo = photo; else delete d.photo;
+  DB.set('customDepartments', customs); return { ok:true };
+}
